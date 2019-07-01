@@ -1,0 +1,618 @@
+# Copyright 2019 Diffblue Limited. All Rights Reserved.
+cbmcArguments:
+  # Do not generate coverage comments on generated tests.
+  java-generate-no-comments: true
+  # Constrain the size of arrays created in the analyzed code.
+  java-max-vla-length: 100000
+phases:
+  -
+    # Phase 0 PRETTY, SIMPLE and SMART - pretty tests, do not test private methods directly, Smart-Harness
+    timeout: 180
+    cbmcArguments:
+      # Use simple models first containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Instantiate classes using the simplest constructor strategy
+      smart-harness: simplest-constructor-and-nondet
+  -
+    # Phase 1 PRETTY AND COMPLEX - standard models only, pretty tests, do not test private methods directly, input factory
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 2
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+      # Limit input factory recursive depth (default 0 = no recursion allowed)
+      java-test-input-factory-bmc-recursion-limit: 4
+  -
+    # Phase 2 FIFO Strategy - pretty tests, do not test private methods directly, fifo
+    timeout: 100
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Add constraint that strings are printable
+      max-nondet-string-length: 100
+      # Explores the program tree breadth-first.
+      paths: fifo
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: false
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 3 Exceptions - do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 4 Direct testing - test private methods directly, increased reflection
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # If the logs contain output of the following then proceed to phase X
+    nextPhase:
+      # If the function is not analysable then do not pass onto the next phase
+      not_analyzed: null
+  -
+    # PHASE 5 Mocking - aggressive mocking, do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 3000
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Only load the class (and related inner/outer classes) containing the method under test,
+      load-containing-class-only: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 100
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+units:
+ - target:
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$CharSequenceTranslator.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$UnicodeUnescaper.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$LookupTranslator.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$OctalUnescaper.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$AggregateTranslator.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+ - target:
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$UnicodeUnescaper.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$CharSequenceTranslator.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$1.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+ - target:
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$LookupTranslator.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$CharSequenceTranslator.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+ - target:
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/CodeGenerationUtils.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/CodeGenerationUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/Utils.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/Utils.java
+ - target:
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/declarations/AstResolutionUtils.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/declarations/AstResolutionUtils.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/VariableDeclarationExprContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/VariableDeclarationExprContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/JavaParserFactory.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/JavaParserFactory.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/nodeTypes/NodeWithConstructors.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/nodeTypes/NodeWithConstructors.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/PackageDeclaration.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/PackageDeclaration.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/declarations/ResolvedReferenceTypeDeclaration.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/declarations/ResolvedReferenceTypeDeclaration.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserInterfaceDeclaration.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserInterfaceDeclaration.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/AnonymousClassDeclarationContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/AnonymousClassDeclarationContext.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/body/ConstructorDeclaration.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/body/ConstructorDeclaration.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/BlockStmtContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/BlockStmtContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/ForEachStatementContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/ForEachStatementContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserTypeParameter.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserTypeParameter.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/UnsolvedSymbolException.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/UnsolvedSymbolException.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserTypeAdapter.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserTypeAdapter.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/CompilationUnitContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/CompilationUnitContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/FieldAccessContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/FieldAccessContext.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/Node.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/Node.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/AbstractJavaParserContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/AbstractJavaParserContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/JavaParserTypeDeclarationAdapter.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/JavaParserTypeDeclarationAdapter.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/ClassOrInterfaceDeclarationContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/ClassOrInterfaceDeclarationContext.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/expr/AnnotationExpr.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/expr/AnnotationExpr.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/type/ClassOrInterfaceType.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/type/ClassOrInterfaceType.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/expr/SimpleName.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/expr/SimpleName.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserClassDeclaration.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserClassDeclaration.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/VariableDeclaratorContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/VariableDeclaratorContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/ObjectCreationContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/ObjectCreationContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserEnumDeclaration.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserEnumDeclaration.java
+   - dir: javaparser-symbol-solver-logic/target/classes
+     file: com/github/javaparser/symbolsolver/logic/AbstractTypeDeclaration.class
+     sourceDir: javaparser-symbol-solver-logic/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/logic/AbstractTypeDeclaration.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/body/TypeDeclaration.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/body/TypeDeclaration.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserConstructorDeclaration.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserConstructorDeclaration.java
+   - dir: javaparser-symbol-solver-logic/target/classes
+     file: com/github/javaparser/symbolsolver/logic/AbstractClassDeclaration.class
+     sourceDir: javaparser-symbol-solver-logic/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/logic/AbstractClassDeclaration.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/declarations/ResolvedTypeDeclaration.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/declarations/ResolvedTypeDeclaration.java
+   - dir: javaparser-symbol-solver-model/target/classes
+     file: com/github/javaparser/symbolsolver/model/resolution/SymbolReference.class
+     sourceDir: javaparser-symbol-solver-model/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/model/resolution/SymbolReference.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparser/Navigator.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparser/Navigator.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/AbstractMethodLikeDeclarationContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/AbstractMethodLikeDeclarationContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/ForStatementContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/ForStatementContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/CatchClauseContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/CatchClauseContext.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/CompilationUnit.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/CompilationUnit.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/EnumDeclarationContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/EnumDeclarationContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/declarations/DefaultConstructorDeclaration.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/declarations/DefaultConstructorDeclaration.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/ConstructorContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/ConstructorContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/TryWithResourceContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/TryWithResourceContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/core/resolution/Context.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/core/resolution/Context.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/MethodCallExprContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/MethodCallExprContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/StatementContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/StatementContext.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/LambdaExprContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/LambdaExprContext.java
+   - dir: javaparser-symbol-solver-model/target/classes
+     file: com/github/javaparser/symbolsolver/model/resolution/TypeSolver.class
+     sourceDir: javaparser-symbol-solver-model/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/model/resolution/TypeSolver.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserAnonymousClassDeclaration.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserAnonymousClassDeclaration.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserAnnotationDeclaration.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/declarations/JavaParserAnnotationDeclaration.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/body/ClassOrInterfaceDeclaration.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/body/ClassOrInterfaceDeclaration.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/SwitchEntryContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/SwitchEntryContext.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/expr/ObjectCreationExpr.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/expr/ObjectCreationExpr.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/printer/PrettyPrinter.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/printer/PrettyPrinter.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/NodeList.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/NodeList.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/nodeTypes/NodeWithAnnotations.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/nodeTypes/NodeWithAnnotations.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/JavaParserFacade.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/JavaParserFacade.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javaparsermodel/contexts/MethodContext.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javaparsermodel/contexts/MethodContext.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/printer/PrettyPrinterConfiguration.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/printer/PrettyPrinterConfiguration.java
+ - target:
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$CharSequenceTranslator.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$1.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$AggregateTranslator.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+ - target:
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/Utils.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/Utils.java
+ - target:
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/ClassUtils.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/ClassUtils.java
+ - target:
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$OctalUnescaper.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$CharSequenceTranslator.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$1.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+ - target:
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$AggregateTranslator.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/StringEscapeUtils$CharSequenceTranslator.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/StringEscapeUtils.java
+ - target:
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/utils/PositionUtils.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/utils/PositionUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/Node.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/Node.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/expr/AnnotationExpr.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/expr/AnnotationExpr.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/NodeList.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/NodeList.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/nodeTypes/NodeWithAnnotations.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/nodeTypes/NodeWithAnnotations.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/body/TypeDeclaration.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/body/TypeDeclaration.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/ast/nodeTypes/NodeWithType.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/ast/nodeTypes/NodeWithType.java
+ - target:
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javassistmodel/JavassistUtils.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javassistmodel/JavassistUtils.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/types/parametrization/ResolvedTypeParametersMap.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/types/parametrization/ResolvedTypeParametersMap.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/MethodAmbiguityException.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/MethodAmbiguityException.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/types/ResolvedType.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/types/ResolvedType.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/declarations/ResolvedMethodDeclaration.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/declarations/ResolvedMethodDeclaration.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/types/parametrization/ResolvedTypeParametersMap$Builder.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/types/parametrization/ResolvedTypeParametersMap.java
+   - dir: javaparser-symbol-solver-model/target/classes
+     file: com/github/javaparser/symbolsolver/model/resolution/SymbolReference.class
+     sourceDir: javaparser-symbol-solver-model/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/model/resolution/SymbolReference.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/declarations/ResolvedTypeParameterDeclaration.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/declarations/ResolvedTypeParameterDeclaration.java
+   - dir: javaparser-symbol-solver-model/target/classes
+     file: com/github/javaparser/symbolsolver/model/resolution/TypeSolver.class
+     sourceDir: javaparser-symbol-solver-model/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/model/resolution/TypeSolver.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/types/ResolvedPrimitiveType.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/types/ResolvedPrimitiveType.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/MethodUsage.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/MethodUsage.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/model/typesystem/ReferenceTypeImpl.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/model/typesystem/ReferenceTypeImpl.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/types/ResolvedReferenceType.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/types/ResolvedReferenceType.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/declarations/ResolvedTypeParametrizable.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/declarations/ResolvedTypeParametrizable.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/resolution/MethodResolutionLogic.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/resolution/MethodResolutionLogic.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/UnsolvedSymbolException.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/UnsolvedSymbolException.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/types/ResolvedTypeVariable.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/types/ResolvedTypeVariable.java
+   - dir: javaparser-symbol-solver-core/target/classes
+     file: com/github/javaparser/symbolsolver/javassistmodel/JavassistMethodDeclaration.class
+     sourceDir: javaparser-symbol-solver-core/src/main/java
+     sourceFile: com/github/javaparser/symbolsolver/javassistmodel/JavassistMethodDeclaration.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/types/ResolvedWildcard.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/types/ResolvedWildcard.java
+   - dir: javaparser-core/target/classes
+     file: com/github/javaparser/resolution/types/ResolvedArrayType.class
+     sourceDir: javaparser-core/src/main/java
+     sourceFile: com/github/javaparser/resolution/types/ResolvedArrayType.java
